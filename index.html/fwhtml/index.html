@@ -3,88 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Kantor Damkar — Fire Watcher</title>
-
-  <meta
-    name="description"
-    content="Pemantauan kebakaran Hutan 1 oleh robot Fire Watcher untuk petugas pemadam kebakaran."
-  />
-
+  <meta name="description" content="Pemantauan kebakaran Hutan 1 oleh robot Fire Watcher untuk petugas pemadam kebakaran." />
   <link rel="icon" type="image/png" href="assets/fox-mascot.png" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-
   <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap"
   />
-
   <style>
-    /* =========================================================
-       FIRE WATCHER DESIGN
-    ========================================================= */
-
+    /* ===== Fire Watcher design tokens ===== */
     :root {
       --radius: 1rem;
       --radius-2xl: calc(var(--radius) + 8px);
-
       --background: oklch(1 0 0);
       --foreground: oklch(0.24 0.02 150);
-
       --primary-foreground: oklch(0.99 0.01 120);
-
       --muted-foreground: oklch(0.52 0.02 150);
-
       --accent: oklch(0.95 0.03 150);
       --accent-foreground: oklch(0.35 0.08 150);
-
       --destructive: oklch(0.55 0.21 27);
       --destructive-foreground: oklch(0.99 0.01 60);
-
       --brand: oklch(0.44 0.19 27);
       --brand-foreground: oklch(0.99 0.01 60);
-
       --nav-active: oklch(0.72 0.09 20);
-
       --forest: oklch(0.42 0.12 150);
       --forest-soft: oklch(0.975 0.02 150);
       --forest-line: oklch(0.8 0.06 150);
-
       --flame-line: oklch(0.72 0.16 40);
       --flame-soft: oklch(0.97 0.03 45);
-
-      --shadow-card:
-        0 10px 28px -18px oklch(0.35 0.07 150 / 0.45);
-
-      --shadow-sticker:
-        0 6px 14px -6px oklch(0.2 0.05 40 / 0.35);
-
-      --font-display:
-        "Baloo 2",
-        ui-rounded,
-        system-ui,
-        sans-serif;
-
-      --font-hand:
-        "Comfortaa",
-        ui-rounded,
-        system-ui,
-        sans-serif;
-
-      --font-sans:
-        "Nunito",
-        ui-sans-serif,
-        system-ui,
-        sans-serif;
+      --shadow-card: 0 10px 28px -18px oklch(0.35 0.07 150 / 0.45);
+      --shadow-sticker: 0 6px 14px -6px oklch(0.2 0.05 40 / 0.35);
+      --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+      --font-hand: "Comfortaa", ui-rounded, system-ui, sans-serif;
+      --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
     }
-
-    * {
-      box-sizing: border-box;
-      border-color: var(--forest-line);
-    }
-
+    * { box-sizing: border-box; border-color: var(--forest-line); }
     body {
       margin: 0;
       background-color: var(--background);
@@ -93,70 +48,31 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    h1,
-    h2,
-    h3 {
-      font-family: var(--font-display);
-      margin: 0;
-    }
-
-    img {
-      max-width: 100%;
-    }
-
-    .fw-sticker {
-      filter: drop-shadow(var(--shadow-sticker));
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .fw-float {
-      animation: fw-float 5s ease-in-out infinite;
-    }
-
+    h1, h2, h3 { font-family: var(--font-display); margin: 0; }
+    img { max-width: 100%; }
+    .fw-sticker { filter: drop-shadow(var(--shadow-sticker)); pointer-events: none; user-select: none; }
+    .fw-float { animation: fw-float 5s ease-in-out infinite; }
     @keyframes fw-float {
-      0%,
-      100% {
-        transform: translateY(0) rotate(-3deg);
-      }
-
-      50% {
-        transform: translateY(-8px) rotate(3deg);
-      }
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
     }
-
-    .fw-pulse-fire {
-      animation: fw-pulse-fire 1.4s ease-in-out infinite;
-    }
-
+    .fw-pulse-fire { animation: fw-pulse-fire 1.4s ease-in-out infinite; }
     @keyframes fw-pulse-fire {
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.65;
-        transform: scale(1.12);
-      }
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.12); }
     }
-
     .fw-card {
       border-radius: var(--radius-2xl);
       border: 1px solid var(--forest-line);
       background-color: var(--background);
       box-shadow: var(--shadow-card);
     }
-
     .fw-card-safe {
       border-radius: var(--radius-2xl);
       border: 1px solid var(--forest-line);
       background-color: var(--forest-soft);
       box-shadow: var(--shadow-card);
     }
-
     .fw-card-fire {
       border-radius: var(--radius-2xl);
       border: 1px solid var(--flame-line);
@@ -164,16 +80,12 @@
       box-shadow: var(--shadow-card);
     }
 
-    /* =========================================================
-       HEADER
-    ========================================================= */
-
+    /* ===== Header ===== */
     .site-header {
       position: relative;
       overflow: hidden;
       background-color: var(--brand);
     }
-
     .header-lights {
       position: absolute;
       top: -1.5rem;
@@ -184,33 +96,18 @@
       user-select: none;
       opacity: 0.95;
     }
-
     .header-inner {
       position: relative;
       margin: 0 auto;
       max-width: 72rem;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
-
       gap: 1rem;
       padding: 1rem 1.25rem;
     }
-
-    .logo-link {
-      position: relative;
-      display: block;
-      flex-shrink: 0;
-      padding-right: 3rem;
-    }
-
-    .logo-img {
-      height: 4rem;
-      width: auto;
-      display: block;
-    }
-
+    .logo-link { position: relative; display: block; flex-shrink: 0; padding-right: 3rem; }
+    .logo-img { height: 4rem; width: auto; display: block; }
     .logo-fox {
       position: absolute;
       top: -0.5rem;
@@ -218,1890 +115,633 @@
       height: 3.5rem;
       width: 3.5rem;
     }
-
     @media (min-width: 640px) {
-      .logo-img {
-        height: 5rem;
-      }
-
-      .logo-fox {
-        height: 4.5rem;
-        width: 4.5rem;
-      }
-
-      .logo-link {
-        padding-right: 4rem;
-      }
+      .logo-img { height: 5rem; }
+      .logo-fox { height: 4.5rem; width: 4.5rem; }
+      .logo-link { padding-right: 4rem; }
     }
-
-    .site-nav {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-
-      font-family: var(--font-hand);
-      font-size: 0.875rem;
-      color: var(--brand-foreground);
-    }
-
+    .site-nav { display: flex; align-items: center; gap: 0.25rem; font-family: var(--font-hand); font-size: 0.875rem; color: var(--brand-foreground); }
     .site-nav button {
       border: 0;
       cursor: pointer;
-
       font-family: inherit;
       font-size: inherit;
       color: inherit;
-
       background: transparent;
-
       border-radius: 9999px;
-
       padding: 0.5rem 1rem;
-
       transition: background-color 0.15s ease;
     }
-
-    .site-nav button:hover {
-      background-color: oklch(0.72 0.09 20 / 0.4);
-    }
-
-    .site-nav button.active {
-      background-color: var(--nav-active);
-    }
-
+    .site-nav button:hover { background-color: oklch(0.72 0.09 20 / 0.4); }
+    .site-nav button.active { background-color: var(--nav-active); }
     @media (min-width: 640px) {
-      .site-nav {
-        gap: 0.5rem;
-        font-size: 1.125rem;
-      }
-
-      .site-nav button {
-        padding: 0.625rem 1.5rem;
-      }
+      .site-nav { gap: 0.5rem; font-size: 1.125rem; }
+      .site-nav button { padding: 0.625rem 1.5rem; }
     }
 
-    /* =========================================================
-       PAGE
-    ========================================================= */
+    /* ===== Pages / layout ===== */
+    .page { display: none; }
+    .page.visible { display: block; }
+    main.damkar { position: relative; margin: 0 auto; max-width: 72rem; padding: 2rem 1.25rem 7rem; }
+    main.penduduk { position: relative; margin: 0 auto; max-width: 64rem; padding: 2rem 1.25rem 7rem; }
+    .abs { position: absolute; }
+    .hero { position: relative; overflow: hidden; padding: 2.5rem 1.75rem; }
+    @media (min-width: 640px) { .hero { padding: 2.5rem 2.5rem; } }
+    .hero-inner { position: relative; max-width: 36rem; }
+    .hero h1 { font-size: 1.875rem; font-weight: 800; line-height: 1.25; }
+    @media (min-width: 640px) { .hero h1 { font-size: 3rem; } }
+    .hero p { margin: 1rem 0 0; font-weight: 700; font-size: 0.875rem; line-height: 1.625; }
+    @media (min-width: 640px) { .hero p { font-size: 1rem; } }
+    .pine-row { position: absolute; bottom: 0; right: 0; height: 85%; width: auto; opacity: 0.9; pointer-events: none; user-select: none; }
 
-    .page {
-      display: none;
-    }
-
-    .page.visible {
-      display: block;
-    }
-
-    main.damkar {
-      position: relative;
-      margin: 0 auto;
-      max-width: 72rem;
-      padding: 2rem 1.25rem 7rem;
-    }
-
-    main.penduduk {
-      position: relative;
-      margin: 0 auto;
-      max-width: 64rem;
-      padding: 2rem 1.25rem 7rem;
-    }
-
-    .abs {
-      position: absolute;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      padding: 2.5rem 1.75rem;
-    }
-
-    @media (min-width: 640px) {
-      .hero {
-        padding: 2.5rem 2.5rem;
-      }
-    }
-
-    .hero-inner {
-      position: relative;
-      max-width: 36rem;
-    }
-
-    .hero h1 {
-      font-size: 1.875rem;
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
-    @media (min-width: 640px) {
-      .hero h1 {
-        font-size: 3rem;
-      }
-    }
-
-    .hero p {
-      margin: 1rem 0 0;
-      font-weight: 700;
-      font-size: 0.875rem;
-      line-height: 1.625;
-    }
-
-    @media (min-width: 640px) {
-      .hero p {
-        font-size: 1rem;
-      }
-    }
-
-    .pine-row {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-
-      height: 85%;
-      width: auto;
-
-      opacity: 0.9;
-
-      pointer-events: none;
-      user-select: none;
-    }
-
-    /* =========================================================
-       GRID
-    ========================================================= */
-
-    .grid-detail {
-      margin-top: 1.5rem;
-      display: grid;
-      gap: 1.5rem;
-    }
-
-    @media (min-width: 1024px) {
-      .grid-detail {
-        grid-template-columns: 1.15fr 1fr;
-      }
-    }
-
-    .grid-2col {
-      margin-top: 1.5rem;
-      display: grid;
-      gap: 1.5rem;
-    }
-
-    @media (min-width: 640px) {
-      .grid-2col {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    /* =========================================================
-       FOREST PANEL
-    ========================================================= */
-
-    .panel {
-      position: relative;
-      overflow: hidden;
-
-      border-radius: 1.5rem;
-      border: 1px solid var(--forest-line);
-
-      box-shadow: var(--shadow-card);
-    }
-
-    .panel img.forest-img {
-      display: block;
-
-      width: 100%;
-      height: 100%;
-
-      object-fit: cover;
-    }
-
-    .panel .fire-overlay {
-      position: absolute;
-      inset: 0;
-
-      pointer-events: none;
-
-      background-color: oklch(0.55 0.21 27 / 0.15);
-    }
-
+    .grid-detail { margin-top: 1.5rem; display: grid; gap: 1.5rem; }
+    @media (min-width: 1024px) { .grid-detail { grid-template-columns: 1.15fr 1fr; } }
+    .grid-2col { margin-top: 1.5rem; display: grid; gap: 1.5rem; }
+    @media (min-width: 640px) { .grid-2col { grid-template-columns: repeat(2, 1fr); } }
+    .panel { position: relative; overflow: hidden; border-radius: 1.5rem; border: 1px solid var(--forest-line); box-shadow: var(--shadow-card); }
+    .panel img.forest-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .panel .fire-overlay { position: absolute; inset: 0; pointer-events: none; background-color: oklch(0.55 0.21 27 / 0.15); }
     .badge-hutan {
       position: absolute;
-
       left: 1rem;
       top: 1rem;
-
       border-radius: 9999px;
-
       background-color: oklch(1 0 0 / 0.9);
-
       padding: 0.375rem 1rem;
-
       font-family: var(--font-display);
       font-size: 0.875rem;
       font-weight: 700;
-
       box-shadow: var(--shadow-card);
     }
-
     .badge-fire {
       position: absolute;
-
       right: 1rem;
       top: 1rem;
-
       border-radius: 9999px;
-
       background-color: var(--destructive);
       color: var(--destructive-foreground);
-
       padding: 0.375rem 1rem;
-
       font-family: var(--font-display);
       font-size: 0.875rem;
       font-weight: 700;
     }
-
     .robot {
       position: absolute;
-
       width: 11%;
-
       left: 50%;
       top: 93%;
-
       transform: translate(-50%, -50%);
-
       pointer-events: none;
-
-      filter:
-        drop-shadow(
-          0 10px 8px oklch(0.2 0.05 40 / 0.35)
-        );
+      filter: drop-shadow(0 10px 8px oklch(0.2 0.05 40 / 0.35));
     }
-
-    /* =========================================================
-       CARDS
-    ========================================================= */
-
-    .card-pad {
-      padding: 1.5rem 1.75rem;
-    }
-
-    .card-title {
-      border-bottom: 1px solid var(--forest-line);
-
-      padding-bottom: 0.75rem;
-
-      font-size: 1.5rem;
-      font-weight: 800;
-    }
-
-    .card-title-sm {
-      font-size: 1.25rem;
-      font-weight: 800;
-    }
-
-    dl.detail {
-      margin: 1rem 0 0;
-    }
-
-    dl.detail .row {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    dl.detail .row + .row {
-      margin-top: 0.5rem;
-    }
-
-    dl.detail dt {
-      width: 10rem;
-      flex-shrink: 0;
-
-      color: var(--muted-foreground);
-
-      font-size: 0.875rem;
-    }
-
-    @media (min-width: 640px) {
-      dl.detail dt {
-        font-size: 1rem;
-      }
-    }
-
-    dl.detail dd {
-      margin: 0;
-
-      font-weight: 700;
-      font-size: 0.875rem;
-    }
-
-    @media (min-width: 640px) {
-      dl.detail dd {
-        font-size: 1rem;
-      }
-    }
-
+    .card-pad { padding: 1.5rem 1.75rem; }
+    .card-title { border-bottom: 1px solid var(--forest-line); padding-bottom: 0.75rem; font-size: 1.5rem; font-weight: 800; }
+    .card-title-sm { font-size: 1.25rem; font-weight: 800; }
+    dl.detail { margin: 1rem 0 0; }
+    dl.detail .row { display: flex; gap: 0.5rem; }
+    dl.detail .row + .row { margin-top: 0.5rem; }
+    dl.detail dt { width: 10rem; flex-shrink: 0; color: var(--muted-foreground); font-size: 0.875rem; }
+    @media (min-width: 640px) { dl.detail dt { font-size: 1rem; } }
+    dl.detail dd { margin: 0; font-weight: 700; font-size: 0.875rem; }
+    @media (min-width: 640px) { dl.detail dd { font-size: 1rem; } }
     .chip {
       display: inline-block;
-
       margin-top: 0.75rem;
-
       border-radius: 0.75rem;
-
       padding: 0.5rem 1rem;
-
       font-family: var(--font-display);
       font-weight: 700;
-
       background-color: var(--accent);
       color: var(--accent-foreground);
     }
+    .chip.fire { background-color: var(--flame-soft); color: var(--destructive); }
+    .muted { color: var(--muted-foreground); }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .text-sm { font-size: 0.875rem; }
+    .status-line { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+    .dot { height: 1rem; width: 1rem; border-radius: 9999px; background-color: var(--forest); }
+    .dot.fire { background-color: var(--destructive); }
+    .status-label { font-family: var(--font-display); font-size: 1.125rem; font-weight: 800; }
+    .text-danger { color: var(--destructive); }
+    .text-forest { color: var(--forest); }
+    .text-center { text-align: center; }
 
-    .chip.fire {
-      background-color: var(--flame-soft);
-      color: var(--destructive);
-    }
+    .text-forest { color: var(--forest); }
 
-    .muted {
-      color: var(--muted-foreground);
-    }
-
-    .mt-3 {
-      margin-top: 0.75rem;
-    }
-
-    .mt-4 {
-      margin-top: 1rem;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-    }
-
-    .status-line {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-
-      margin-top: 0.75rem;
-    }
-
-    .dot {
-      height: 1rem;
-      width: 1rem;
-
-      border-radius: 9999px;
-
-      background-color: var(--forest);
-    }
-
-    .dot.fire {
-      background-color: var(--destructive);
-    }
-
-    .status-label {
-      font-family: var(--font-display);
-
-      font-size: 1.125rem;
-      font-weight: 800;
-    }
-
-    .text-danger {
-      color: var(--destructive);
-    }
-
-    .text-forest {
-      color: var(--forest);
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    /* =========================================================
-       DEMO BUTTON
-    ========================================================= */
-
+    /* ===== Demo button ===== */
     .demo-wrap {
-      position: fixed;
-
-      bottom: 1.25rem;
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      z-index: 50;
+      position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+      z-index: 50; display: flex; gap: 0.5rem; align-items: center;
+      width: max-content; max-width: calc(100vw - 1.5rem);
     }
-
+    .sound-btn {
+      cursor: pointer; border: 1px solid var(--forest-line); border-radius: 9999px;
+      padding: 0.75rem 1rem; font-family: var(--font-display); font-size: 0.875rem;
+      font-weight: 700; color: var(--foreground); background: white;
+      box-shadow: var(--shadow-card); white-space: nowrap;
+    }
     .demo-btn {
       cursor: pointer;
-
       border: 0;
       border-radius: 9999px;
-
       padding: 0.75rem 1.5rem;
-
       font-family: var(--font-display);
-
       font-size: 0.875rem;
       font-weight: 700;
-
       box-shadow: var(--shadow-card);
-
       transition: transform 0.15s ease;
     }
-
-    .demo-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .demo-btn.fire-on {
-      background-color: var(--forest);
-      color: var(--primary-foreground);
-    }
-
-    .demo-btn.fire-off {
-      background-color: var(--destructive);
-      color: var(--destructive-foreground);
-    }
+    .demo-btn:hover { transform: scale(1.05); }
+    .demo-btn.fire-on { background-color: var(--forest); color: var(--primary-foreground); }
+    .demo-btn.fire-off { background-color: var(--destructive); color: var(--destructive-foreground); }
   </style>
 </head>
-
 <body>
-
-  <!-- =========================================================
-       HEADER
-  ========================================================= -->
-
+  <!-- ============ Header ============ -->
   <header class="site-header">
-
-    <img
-      src="assets/lights.png"
-      alt=""
-      aria-hidden="true"
-      class="header-lights"
-    />
-
+    <img src="assets/lights.png" alt="" aria-hidden="true" class="header-lights" />
     <div class="header-inner">
-
-      <a
-        href="#"
-        class="logo-link"
-        onclick="showPage('damkar', event)"
-      >
-
-        <img
-          src="assets/logo.png"
-          alt="Fire Watcher"
-          class="logo-img"
-        />
-
-        <img
-          src="assets/fox-mascot.png"
-          alt=""
-          aria-hidden="true"
-          class="logo-fox fw-sticker"
-        />
-
+      <a href="#" class="logo-link" onclick="showPage('damkar', event)">
+        <img src="assets/logo.png" alt="Fire Watcher" class="logo-img" />
+        <img src="assets/fox-mascot.png" alt="" aria-hidden="true" class="logo-fox fw-sticker" />
       </a>
-
       <nav class="site-nav">
-
-        <button
-          id="tab-damkar"
-          class="active"
-          onclick="showPage('damkar', event)"
-        >
-          Kantor Damkar
-        </button>
-
-        <button
-          id="tab-penduduk"
-          onclick="showPage('penduduk', event)"
-        >
-          Penduduk
-        </button>
-
+        <button id="tab-damkar" class="active" onclick="showPage('damkar', event)">Kantor Damkar</button>
+        <button id="tab-penduduk" onclick="showPage('penduduk', event)">Penduduk</button>
       </nav>
-
     </div>
   </header>
 
-
-  <!-- =========================================================
-       PAGE KANTOR DAMKAR
-  ========================================================= -->
-
+  <!-- ============ Page: Kantor Damkar ============ -->
   <div id="page-damkar" class="page visible">
-
     <main class="damkar">
+      <img src="assets/star-sticker.png" alt="" aria-hidden="true" class="fw-sticker abs" style="left:-10px;top:0.5rem;height:3.5rem;width:3.5rem;transform:rotate(-12deg)" />
+      <img src="assets/fire-sticker.png" alt="" aria-hidden="true" class="fw-sticker fw-float abs" style="right:-14px;top:46%;height:4rem;width:4rem" />
+      <img src="assets/fox-mascot.png" alt="" aria-hidden="true" class="fw-sticker abs" style="bottom:0.5rem;left:-18px;height:6rem;width:6rem" />
 
-      <img
-        src="assets/star-sticker.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker abs"
-        style="
-          left:-10px;
-          top:0.5rem;
-          height:3.5rem;
-          width:3.5rem;
-          transform:rotate(-12deg)
-        "
-      />
-
-      <img
-        src="assets/fire-sticker.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker fw-float abs"
-        style="
-          right:-14px;
-          top:46%;
-          height:4rem;
-          width:4rem
-        "
-      />
-
-      <img
-        src="assets/fox-mascot.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker abs"
-        style="
-          bottom:0.5rem;
-          left:-18px;
-          height:6rem;
-          width:6rem
-        "
-      />
-
-
-      <!-- MAIN STATUS -->
-
-      <section
-        id="damkar-hero"
-        class="hero fw-card-safe"
-      >
-
-        <img
-          src="assets/pines.png"
-          alt=""
-          aria-hidden="true"
-          class="pine-row"
-        />
-
+      <!-- Main status -->
+      <section id="damkar-hero" class="hero fw-card-safe">
+        <img src="assets/pines.png" alt="" aria-hidden="true" class="pine-row" />
         <div class="hero-inner">
-
-          <h1
-            id="damkar-title"
-            class="text-forest"
-          >
-            TIDAK ADA KEBAKARAN
-          </h1>
-
+          <h1 id="damkar-title" class="text-forest">TIDAK ADA KEBAKARAN</h1>
           <p id="damkar-text">
             Area hutan dalam kondisi aman.<br />
             Tetap waspada dan jaga lingkungan sekitar anda.
           </p>
-
         </div>
       </section>
 
-
-      <!-- FOREST + DETAIL -->
-
+      <!-- Forest + detail -->
       <section class="grid-detail">
-
-        <div
-          id="damkar-forest"
-          class="panel"
-        >
-
-          <img
-            src="assets/forest-safe.jpg"
-            alt="Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli"
-            class="forest-img"
-          />
-
+        <div id="damkar-forest" class="panel">
+          <img src="assets/forest-safe.jpg" alt="Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli" class="forest-img" />
         </div>
 
-
         <div class="fw-card card-pad">
-
-          <h2 class="card-title">
-            Detail Area
-          </h2>
-
+          <h2 class="card-title">Detail Area</h2>
           <dl class="detail">
-
-            <div class="row">
-              <dt>Lokasi</dt>
-              <dd>: Hutan 1</dd>
-            </div>
-
-            <div class="row">
-              <dt>Status Api</dt>
-              <dd id="damkar-status-api">
-                : Tidak terdeteksi
-              </dd>
-            </div>
-
-            <div class="row">
-              <dt>Status AI Camera</dt>
-              <dd id="damkar-ai">
-                : Tidak ada api
-              </dd>
-            </div>
-
-            <div class="row">
-              <dt>Jam</dt>
-              <dd>
-                : <span id="jam">--:--</span>
-              </dd>
-            </div>
-
+            <div class="row"><dt>Lokasi</dt><dd>: Hutan 1</dd></div>
+            <div class="row"><dt>Status Api</dt><dd id="damkar-status-api">: Tidak terdeteksi</dd></div>
+            <div class="row"><dt>Status AI Camera</dt><dd id="damkar-ai">: Tidak ada api</dd></div>
+            <div class="row"><dt>Jam</dt><dd>: <span id="jam">--:--</span></dd></div>
           </dl>
-
         </div>
-
       </section>
 
-
-      <!-- AREA + CAMERA -->
-
+      <!-- Area monitored + camera -->
       <section class="grid-2col">
-
-        <div
-          class="fw-card card-pad"
-          style="
-            position:relative;
-            overflow:hidden
-          "
-        >
-
-          <h2 class="card-title-sm">
-            Area yang Dipantau
-          </h2>
-
-          <span
-            id="damkar-area-chip"
-            class="chip"
-          >
-            Hutan 1
-          </span>
-
-          <p
-            id="damkar-area-text"
-            class="mt-3 text-sm muted"
-          >
-            Area aman
-          </p>
-
+        <div class="fw-card card-pad" style="position:relative;overflow:hidden">
+          <h2 class="card-title-sm">Area yang Dipantau</h2>
+          <span id="damkar-area-chip" class="chip">Hutan 1</span>
+          <p id="damkar-area-text" class="mt-3 text-sm muted">Area aman</p>
         </div>
-
-
         <div class="fw-card card-pad">
-
-          <h2 class="card-title-sm">
-            Status AI Camera
-          </h2>
-
-          <p
-            id="damkar-camera"
-            class="mt-3 text-forest"
-            style="
-              font-weight:700;
-              font-size:1rem
-            "
-          >
-            Tidak ada api
-          </p>
-
+          <h2 class="card-title-sm">Status AI Camera</h2>
+          <p id="damkar-camera" class="mt-3 text-forest" style="font-weight:700;font-size:1rem">Tidak ada api</p>
         </div>
-
       </section>
 
-
-      <!-- MONITORING STATUS -->
-
-      <section
-        id="damkar-monitor"
-        class="fw-card card-pad"
-        style="
-          margin-top:1.5rem;
-          position:relative;
-          overflow:hidden
-        "
-      >
-
-        <h2
-          style="
-            font-size:1.5rem;
-            font-weight:800
-          "
-        >
-          Status Pemantauan
-        </h2>
-
+      <!-- Monitoring status -->
+      <section id="damkar-monitor" class="fw-card card-pad" style="margin-top:1.5rem;position:relative;overflow:hidden">
+        <h2 style="font-size:1.5rem;font-weight:800">Status Pemantauan</h2>
         <div class="status-line">
-
-          <span
-            id="damkar-dot"
-            class="dot"
-          ></span>
-
-          <span
-            id="damkar-fire-label"
-            class="status-label"
-          >
-            Aktif
-          </span>
-
+          <span id="damkar-dot" class="dot"></span>
+          <span id="damkar-fire-label" class="status-label">Aktif</span>
         </div>
-
-        <p
-          id="damkar-monitor-text"
-          class="mt-3 text-sm muted"
-        >
-          Fire Watcher sedang memantau area Hutan 1.
-        </p>
-
-        <p
-          class="mt-4"
-          style="
-            font-weight:700;
-            font-size:0.875rem
-          "
-        >
-          <span id="damkar-date"></span>
-        </p>
-
+        <p id="damkar-monitor-text" class="mt-3 text-sm muted">Fire Watcher sedang memantau area Hutan 1.</p>
+        <p id="firebase-connection" class="mt-3 text-sm muted">Koneksi Firebase: menghubungkan...</p>
+        <p class="mt-4" style="font-weight:700;font-size:0.875rem"><span id="damkar-date"></span></p>
       </section>
-
     </main>
-
   </div>
 
-
-  <!-- =========================================================
-       PAGE PENDUDUK
-  ========================================================= -->
-
+  <!-- ============ Page: Penduduk ============ -->
   <div id="page-penduduk" class="page">
-
     <main class="penduduk">
+      <img src="assets/star-sticker.png" alt="" aria-hidden="true" class="fw-sticker abs" style="left:-10px;top:38%;height:3.5rem;width:3.5rem;transform:rotate(8deg)" />
+      <img src="assets/fire-sticker.png" alt="" aria-hidden="true" class="fw-sticker fw-float abs" style="right:-14px;top:1rem;height:4rem;width:4rem" />
+      <img src="assets/fox-mascot.png" alt="" aria-hidden="true" class="fw-sticker abs" style="bottom:0.5rem;left:-18px;height:6rem;width:6rem" />
 
-      <img
-        src="assets/star-sticker.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker abs"
-        style="
-          left:-10px;
-          top:38%;
-          height:3.5rem;
-          width:3.5rem;
-          transform:rotate(8deg)
-        "
-      />
-
-      <img
-        src="assets/fire-sticker.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker fw-float abs"
-        style="
-          right:-14px;
-          top:1rem;
-          height:4rem;
-          width:4rem
-        "
-      />
-
-      <img
-        src="assets/fox-mascot.png"
-        alt=""
-        aria-hidden="true"
-        class="fw-sticker abs"
-        style="
-          bottom:0.5rem;
-          left:-18px;
-          height:6rem;
-          width:6rem
-        "
-      />
-
-
-      <!-- STATUS PENDUDUK -->
-
-      <section
-        id="penduduk-hero"
-        class="hero fw-card-safe"
-        style="
-          padding:2.25rem 1.75rem
-        "
-      >
-
-        <img
-          src="assets/pines.png"
-          alt=""
-          aria-hidden="true"
-          class="pine-row"
-        />
-
-        <div
-          class="hero-inner"
-          style="max-width:32rem"
-        >
-
-          <h1
-            id="penduduk-title"
-            class="text-forest"
-          >
-            AREA AMAN
-          </h1>
-
+      <section id="penduduk-hero" class="hero fw-card-safe" style="padding:2.25rem 1.75rem">
+        <img src="assets/pines.png" alt="" aria-hidden="true" class="pine-row" />
+        <div class="hero-inner" style="max-width:32rem">
+          <h1 id="penduduk-title" class="text-forest">AREA AMAN</h1>
           <p id="penduduk-text">
             Tidak ada kebakaran yang terdeteksi di Hutan 1.<br />
             Area sedang dipantau oleh Fire Watcher.
           </p>
-
         </div>
-
       </section>
-
-
-      <!-- FOREST -->
 
       <div style="margin-top:1.5rem">
-
-        <div
-          id="penduduk-forest"
-          class="panel"
-        >
-
-          <img
-            src="assets/forest-safe.jpg"
-            alt="Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli"
-            class="forest-img"
-          />
-
+        <div id="penduduk-forest" class="panel">
+          <img src="assets/forest-safe.jpg" alt="Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli" class="forest-img" />
         </div>
-
       </div>
 
-
-      <!-- STATUS -->
-
-      <section
-        id="penduduk-status"
-        class="fw-card card-pad text-center"
-        style="margin-top:1.5rem"
-      >
-
-        <div
-          class="status-line"
-          style="justify-content:center"
-        >
-
-          <span
-            id="penduduk-dot"
-            class="dot"
-          ></span>
-
-          <span
-            id="penduduk-fire-label"
-            class="status-label"
-          >
-            Aktif
-          </span>
-
+      <section id="penduduk-status" class="fw-card card-pad text-center" style="margin-top:1.5rem">
+        <div class="status-line" style="justify-content:center">
+          <span id="penduduk-dot" class="dot"></span>
+          <span id="penduduk-fire-label" class="status-label">Aktif</span>
         </div>
-
-        <p
-          id="penduduk-status-text"
-          class="mt-3 text-sm muted"
-        >
-          Fire Watcher sedang memantau area Hutan 1.
-        </p>
-
+        <p id="penduduk-status-text" class="mt-3 text-sm muted">Fire Watcher sedang memantau area Hutan 1.</p>
       </section>
-
     </main>
-
   </div>
 
-
-  <!-- =========================================================
-       DEMO BUTTON
-  ========================================================= -->
-
+  <!-- ============ Demo controls ============ -->
   <div class="demo-wrap">
-
-    <button
-      id="demo-btn"
-      type="button"
-      class="demo-btn fire-off"
-      onclick="toggleDemo()"
-    >
-      🔥 Simulasi alarm robot
-    </button>
-
+    <button id="sound-btn" type="button" class="sound-btn" onclick="toggleSound()">🔔 Aktifkan suara alarm</button>
+    <button id="demo-btn" type="button" class="demo-btn fire-off" onclick="toggleDemo()">🔥 Simulasi alarm robot</button>
   </div>
 
-
-  <!-- =========================================================
-       FIREBASE SDK
-  ========================================================= -->
-
+  <!-- ============ Firebase (compat SDK, read-only) ============ -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-
-
   <script>
-
-    /* =========================================================
-       LOCAL ALARM STORE
-    ========================================================= */
-
+    // ============= STATUS & ALARM =============
     const STORAGE_KEY = "firewatcher-alarm";
-
     const EVENT = "firewatcher-alarm-change";
-
-    const SAFE = {
-      active: false,
-      at: null,
-      confidence: null
-    };
+    const SAFE = { active: false, at: null, confidence: null };
 
     let alarmState = SAFE;
-
     let localDemo = null;
-
+    let firebaseConnected = false;
+    let soundEnabled = false;
+    let audioContext = null;
+    let alarmTimer = null;
+    let previousFireState = null;
 
     function readAlarm() {
-
       try {
-
-        const raw =
-          window.localStorage.getItem(STORAGE_KEY);
-
-        if (!raw) {
-          return SAFE;
-        }
-
-        const parsed =
-          JSON.parse(raw);
-
-        if (
-          typeof parsed.active !==
-          "boolean"
-        ) {
-          return SAFE;
-        }
-
-        return parsed;
-
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return SAFE;
+        const parsed = JSON.parse(raw);
+        return typeof parsed.active === "boolean" ? parsed : SAFE;
       } catch (e) {
-
         return SAFE;
-
       }
-
     }
 
-
-    function writeAlarm(next) {
-
+    function writeAlarm(next, source = "firebase") {
+      const wasActive = alarmState.active;
       alarmState = next;
 
       try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (e) {}
 
-        window.localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(next)
-        );
+      window.dispatchEvent(new CustomEvent(EVENT));
 
-      } catch (e) {
-        // ignore
-      }
+      // Bunyi hanya saat status berubah dari aman menjadi terdeteksi.
+      if (!wasActive && next.active) startAlarmSound();
+      if (!next.active) stopAlarmSound();
 
-      window.dispatchEvent(
-        new CustomEvent(EVENT)
-      );
-
+      render();
     }
-
 
     function receiveAlarm() {
-
-      writeAlarm({
-
-        active: true,
-
-        at:
-          new Date().toISOString(),
-
-        confidence: null
-
-      });
-
+      localDemo = true;
+      writeAlarm({ active: true, at: new Date().toISOString(), confidence: null }, "demo");
     }
-
 
     function clearAlarm() {
-
-      writeAlarm(SAFE);
-
+      localDemo = false;
+      writeAlarm(SAFE, "demo");
     }
-
 
     function toggleDemo() {
-
-      if (alarmState.active) {
-
-        localDemo = false;
-
-        clearAlarm();
-
-      } else {
-
-        localDemo = true;
-
-        receiveAlarm();
-
-      }
-
+      if (alarmState.active) clearAlarm();
+      else receiveAlarm();
     }
 
+    // ============= SUARA ALARM =============
+    // Browser memerlukan klik pengguna sebelum suara boleh dimainkan.
+    function ensureAudio() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        alert("Browser ini tidak mendukung suara alarm. Coba gunakan Chrome atau Edge.");
+        return false;
+      }
+      if (!audioContext) audioContext = new AudioCtx();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return true;
+    }
 
-    /* =========================================================
-       FIREBASE CONFIG
-    ========================================================= */
+    function playBeep(frequency, duration = 0.18) {
+      if (!soundEnabled || !audioContext || audioContext.state !== "running") return;
 
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = "sawtooth";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.02);
+      gain.gain.setValueAtTime(0.12, audioContext.currentTime + duration - 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function alarmPattern() {
+      if (!soundEnabled || !alarmState.active) return;
+      playBeep(880, 0.18);
+      setTimeout(() => playBeep(660, 0.18), 230);
+      setTimeout(() => playBeep(880, 0.18), 460);
+    }
+
+    function startAlarmSound() {
+      if (!soundEnabled || !alarmState.active) return;
+      stopAlarmSound();
+      alarmPattern();
+      alarmTimer = setInterval(alarmPattern, 1500);
+    }
+
+    function stopAlarmSound() {
+      if (alarmTimer !== null) {
+        clearInterval(alarmTimer);
+        alarmTimer = null;
+      }
+    }
+
+    function toggleSound() {
+      if (!soundEnabled) {
+        if (!ensureAudio()) return;
+        soundEnabled = true;
+        $("sound-btn").textContent = "🔕 Matikan suara alarm";
+        $("sound-btn").setAttribute("aria-pressed", "true");
+        if (alarmState.active) startAlarmSound();
+        else playBeep(660, 0.12);
+      } else {
+        soundEnabled = false;
+        stopAlarmSound();
+        $("sound-btn").textContent = "🔔 Aktifkan suara alarm";
+        $("sound-btn").setAttribute("aria-pressed", "false");
+      }
+    }
+
+    // ============= FIREBASE REALTIME DATABASE =============
     const firebaseConfig = {
-
-      apiKey:
-        "AIzaSyDHsj3vRzH112xlvWLKRGnbd_GtpzSZSSg",
-
-      authDomain:
-        "firewatcher-a3.firebaseapp.com",
-
-      databaseURL:
-        "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-      projectId:
-        "firewatcher-a3",
-
-      storageBucket:
-        "firewatcher-a3.firebasestorage.app",
-
-      messagingSenderId:
-        "66978697760",
-
-      appId:
-        "1:66978697760:web:c2b9d4f09cf67086bb6245"
-
+      apiKey: "AIzaSyDHsj3vRzH112xlvWLKRGnbd_GtpzSZSSg",
+      authDomain: "firewatcher-a3.firebaseapp.com",
+      databaseURL: "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "firewatcher-a3",
+      storageBucket: "firewatcher-a3.firebasestorage.app",
+      messagingSenderId: "66978697760",
+      appId: "1:66978697760:web:c2b9d4f09cf67086bb6245"
     };
 
-
-    /* =========================================================
-       FIREBASE REALTIME LISTENER
-       
-       WEBSITE HANYA MEMBACA:
-       
-       /FireWatcher/Hutan1/fireDetected
-       
-       true  = api terdeteksi
-       false = aman
-    ========================================================= */
-
     function startFirebaseSync() {
-
       if (!window.firebase) {
-
-        console.error(
-          "[Firebase] SDK gagal dimuat"
-        );
-
+        setFirebaseStatus(false, "SDK Firebase gagal dimuat");
+        console.error("[Firebase] SDK gagal dimuat");
         return;
-
       }
 
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-      firebase.initializeApp(
-        firebaseConfig
-      );
-
-
-      const db =
-        firebase.database();
-
-
-      const fireRef =
-        db.ref(
-          "/fireWatcher/Hutan1/fireDetected"
-        );
-
-
-      fireRef.on(
-
-        "value",
-
-        (snapshot) => {
-
-          const raw =
-            snapshot.val();
-
-
-          console.log(
-            "[Firebase] fireDetected =",
-            raw
-          );
-
-
-          const fireDetected =
-
-            raw === true ||
-
-            raw === "true" ||
-
-            raw === 1;
-
-
-          applyFirebase(
-            fireDetected
-          );
-
-        },
-
-
-        (error) => {
-
-          console.error(
-            "[Firebase] Gagal membaca fireDetected:",
-            error
-          );
-
-        }
-
-      );
-
-
-      console.log(
-        "[Firebase] Listener aktif"
-      );
-
-    }
-
-
-    /* =========================================================
-       APPLY FIREBASE DATA
-    ========================================================= */
-
-    function applyFirebase(
-      fireDetected
-    ) {
-
-      if (fireDetected) {
-
-        writeAlarm({
-
-          active: true,
-
-          at:
-            new Date().toISOString(),
-
-          confidence: null
-
+        // Path ini harus sama persis dengan URL yang ditulis ESP32:
+        // /fireWatcher/Hutan1/fireDetected
+        db.ref(".info/connected").on("value", snapshot => {
+          firebaseConnected = snapshot.val() === true;
+          setFirebaseStatus(firebaseConnected, firebaseConnected
+            ? "Realtime aktif"
+            : "Menghubungkan kembali...");
         });
 
-      } else {
+        db.ref("/fireWatcher/Hutan1/fireDetected").on(
+          "value",
+          snapshot => {
+            const raw = snapshot.val();
+            console.log("[Firebase] fireDetected =", raw);
 
-        writeAlarm(SAFE);
+            if (raw === null || raw === undefined) {
+              setFirebaseStatus(firebaseConnected, "Data fireDetected belum ada");
+              return;
+            }
 
+            const fire = raw === true || raw === "true" || raw === 1;
+            // Tombol demo hanya untuk simulasi lokal. Data perangkat nyata
+            // kembali menjadi sumber utama saat ada pembaruan Firebase.
+            localDemo = null;
+            const next = fire
+              ? { active: true, at: new Date().toISOString(), confidence: null }
+              : SAFE;
+
+            if (alarmState.active !== fire) {
+              writeAlarm(next, "firebase");
+            } else {
+              alarmState = next;
+              render();
+            }
+          },
+          error => {
+            console.error("[Firebase] Gagal membaca data:", error);
+            setFirebaseStatus(false, "Gagal membaca Firebase");
+          }
+        );
+
+        console.log("[Firebase] Listener realtime aktif.");
+      } catch (error) {
+        console.error("[Firebase] Inisialisasi gagal:", error);
+        setFirebaseStatus(false, "Inisialisasi gagal");
       }
-
-      localDemo = null;
-
     }
 
+    function setFirebaseStatus(connected, message) {
+      const el = $("firebase-connection");
+      if (!el) return;
+      el.textContent = "Koneksi Firebase: " + message;
+      el.style.color = connected ? "var(--forest)" : "var(--destructive)";
+    }
 
-    /* =========================================================
-       HELPER
-    ========================================================= */
-
-    const $ = (id) =>
-      document.getElementById(id);
-
-
-    /* =========================================================
-       RENDER WEBSITE
-    ========================================================= */
+    // ============= RENDER STATUS =============
+    const $ = id => document.getElementById(id);
 
     function render() {
-
-      const fire =
-        alarmState.active;
-
-
-      /* =======================================================
-         KANTOR DAMKAR
-      ======================================================= */
-
-      $("damkar-hero").className =
-        "hero " +
-        (
-          fire
-            ? "fw-card-fire"
-            : "fw-card-safe"
-        );
-
-
-      const damkarTitle =
-        $("damkar-title");
-
-
-      damkarTitle.textContent =
-        fire
-          ? "🔥 KEBAKARAN TERDETEKSI"
-          : "TIDAK ADA KEBAKARAN";
-
-
-      damkarTitle.className =
-        fire
-          ? "text-danger"
-          : "text-forest";
-
-
-      $("damkar-text").innerHTML =
-
-        fire
-
-          ? "Kebakaran terdeteksi di Hutan 1.<br />Segera menuju Hutan 1 untuk melakukan penanganan."
-
-          : "Area hutan dalam kondisi aman.<br />Tetap waspada dan jaga lingkungan sekitar anda.";
-
-
-      setForestPanel(
-        "damkar-forest",
-        fire
-      );
-
-
-      $("damkar-status-api").textContent =
-
-        fire
-          ? ": Terdeteksi"
-          : ": Tidak terdeteksi";
-
-
-      $("damkar-status-api").style.color =
-
-        fire
-          ? "var(--destructive)"
-          : "var(--foreground)";
-
-
-      $("damkar-ai").textContent =
-
-        fire
-          ? ": 🔥 Api terdeteksi"
-          : ": Tidak ada api";
-
-
-      $("damkar-ai").style.color =
-
-        fire
-          ? "var(--destructive)"
-          : "var(--foreground)";
-
-
-      $("damkar-area-chip").className =
-        "chip" +
-        (
-          fire
-            ? " fire"
-            : ""
-        );
-
-
-      $("damkar-area-text").textContent =
-
-        fire
-          ? "Kebakaran terdeteksi"
-          : "Area aman";
-
-
-      const damkarCamera =
-        $("damkar-camera");
-
-
-      damkarCamera.textContent =
-
-        fire
-          ? "🔥 Api terdeteksi"
-          : "Tidak ada api";
-
-
-      damkarCamera.className =
-        "mt-3 " +
-        (
-          fire
-            ? "text-danger"
-            : "text-forest"
-        );
-
-
-      $("damkar-monitor").className =
-
-        "fw-card card-pad" +
-
-        (
-          fire
-            ? " fw-card-fire"
-            : ""
-        );
-
-
-      $("damkar-dot").className =
-
-        "dot" +
-
-        (
-          fire
-            ? " fire fw-pulse-fire"
-            : ""
-        );
-
-
-      const damkarLabel =
-        $("damkar-fire-label");
-
-
-      damkarLabel.textContent =
-
-        fire
-          ? "FIRE ALERT"
-          : "Aktif";
-
-
-      damkarLabel.className =
-
-        "status-label " +
-
-        (
-          fire
-            ? "text-danger"
-            : ""
-        );
-
-
-      $("damkar-monitor-text").textContent =
-
-        fire
-
-          ? "Kebakaran terdeteksi di Hutan 1."
-
-          : "Fire Watcher sedang memantau area Hutan 1.";
-
-
-      /* =======================================================
-         PENDUDUK
-      ======================================================= */
-
-      $("penduduk-hero").className =
-
-        "hero " +
-
-        (
-          fire
-            ? "fw-card-fire"
-            : "fw-card-safe"
-        );
-
-
-      const pendudukTitle =
-        $("penduduk-title");
-
-
-      pendudukTitle.textContent =
-
-        fire
-          ? "🔥 PERINGATAN KEBAKARAN"
-          : "AREA AMAN";
-
-
-      pendudukTitle.className =
-
-        fire
-          ? "text-danger"
-          : "text-forest";
-
-
-      $("penduduk-text").innerHTML =
-
-        fire
-
-          ? "Kebakaran terdeteksi di Hutan 1.<br />Harap tetap waspada dan hindari area tersebut."
-
-          : "Tidak ada kebakaran yang terdeteksi di Hutan 1.<br />Area sedang dipantau oleh Fire Watcher.";
-
-
-      setForestPanel(
-        "penduduk-forest",
-        fire
-      );
-
-
-      $("penduduk-status").className =
-
-        "fw-card card-pad text-center" +
-
-        (
-          fire
-            ? " fw-card-fire"
-            : ""
-        );
-
-
-      $("penduduk-dot").className =
-
-        "dot" +
-
-        (
-          fire
-            ? " fire fw-pulse-fire"
-            : ""
-        );
-
-
-      const pendudukLabel =
-        $("penduduk-fire-label");
-
-
-      pendudukLabel.textContent =
-
-        fire
-          ? "FIRE ALERT"
-          : "Aktif";
-
-
-      pendudukLabel.className =
-
-        "status-label " +
-
-        (
-          fire
-            ? "text-danger"
-            : ""
-        );
-
-
-      $("penduduk-status-text").textContent =
-
-        fire
-
-          ? "Ikuti arahan petugas dan jauhi Hutan 1."
-
-          : "Fire Watcher sedang memantau area Hutan 1.";
-
-
-      /* =======================================================
-         DEMO BUTTON
-      ======================================================= */
-
-      const btn =
-        $("demo-btn");
-
-
-      btn.className =
-
-        "demo-btn " +
-
-        (
-          fire
-            ? "fire-on"
-            : "fire-off"
-        );
-
-
-      btn.textContent =
-
-        fire
-
-          ? "Hapus alarm (kembali aman)"
-
-          : "🔥 Simulasi alarm robot";
-
+      const fire = alarmState.active;
+
+      // --- Kantor Damkar ---
+      $("damkar-hero").className = "hero " + (fire ? "fw-card-fire" : "fw-card-safe");
+      const damkarTitle = $("damkar-title");
+      damkarTitle.textContent = fire ? "KEBAKARAN TERDETEKSI" : "TIDAK ADA KEBAKARAN";
+      damkarTitle.className = fire ? "text-danger" : "text-forest";
+      $("damkar-text").innerHTML = fire
+        ? "Kebakaran terdeteksi di Hutan 1.<br />Segera lakukan penanganan sesuai prosedur."
+        : "Area hutan dalam kondisi aman.<br />Tetap waspada dan jaga lingkungan sekitar Anda.";
+
+      setForestPanel("damkar-forest", fire);
+      $("damkar-status-api").textContent = fire ? ": Terdeteksi" : ": Tidak terdeteksi";
+      $("damkar-status-api").style.color = fire ? "var(--destructive)" : "var(--foreground)";
+      $("damkar-ai").textContent = fire ? ": Api terdeteksi oleh sistem" : ": Tidak ada api";
+      $("damkar-ai").style.color = fire ? "var(--destructive)" : "var(--foreground)";
+
+      $("damkar-area-chip").className = "chip" + (fire ? " fire" : "");
+      $("damkar-area-text").textContent = fire ? "Kebakaran terdeteksi" : "Area aman";
+      const damkarCamera = $("damkar-camera");
+      damkarCamera.textContent = fire ? "Api terdeteksi dari data Fire Watcher" : "Tidak ada api";
+      damkarCamera.className = "mt-3 " + (fire ? "text-danger" : "text-forest");
+
+      $("damkar-monitor").className = "fw-card card-pad" + (fire ? " fw-card-fire" : "");
+      $("damkar-dot").className = "dot" + (fire ? " fire fw-pulse-fire" : "");
+      const damkarLabel = $("damkar-fire-label");
+      damkarLabel.textContent = fire ? "FIRE ALERT" : "Aktif";
+      damkarLabel.className = "status-label " + (fire ? "text-danger" : "text-forest");
+      $("damkar-monitor-text").textContent = fire
+        ? "Peringatan kebakaran aktif di Hutan 1."
+        : "Fire Watcher sedang memantau area Hutan 1.";
+
+      // --- Penduduk ---
+      $("penduduk-hero").className = "hero " + (fire ? "fw-card-fire" : "fw-card-safe");
+      const pendudukTitle = $("penduduk-title");
+      pendudukTitle.textContent = fire ? "PERINGATAN KEBAKARAN" : "AREA AMAN";
+      pendudukTitle.className = fire ? "text-danger" : "text-forest";
+      $("penduduk-text").innerHTML = fire
+        ? "Kebakaran terdeteksi di Hutan 1.<br />Harap tetap waspada dan hindari area tersebut."
+        : "Tidak ada kebakaran yang terdeteksi di Hutan 1.<br />Area sedang dipantau oleh Fire Watcher.";
+
+      setForestPanel("penduduk-forest", fire);
+      $("penduduk-status").className = "fw-card card-pad text-center" + (fire ? " fw-card-fire" : "");
+      $("penduduk-dot").className = "dot" + (fire ? " fire fw-pulse-fire" : "");
+      const pendudukLabel = $("penduduk-fire-label");
+      pendudukLabel.textContent = fire ? "FIRE ALERT" : "Aktif";
+      pendudukLabel.className = "status-label " + (fire ? "text-danger" : "text-forest");
+      $("penduduk-status-text").textContent = fire
+        ? "Ikuti arahan petugas dan jauhi Hutan 1."
+        : "Fire Watcher sedang memantau area Hutan 1.";
+
+      const btn = $("demo-btn");
+      btn.className = "demo-btn " + (fire ? "fire-on" : "fire-off");
+      btn.textContent = fire ? "Hapus alarm simulasi" : "Simulasi alarm robot";
     }
 
+    function setForestPanel(id, fire) {
+      const panel = $(id);
+      if (!panel) return;
+      const img = panel.querySelector(".forest-img");
+      if (!img) return;
 
-    /* =========================================================
-       FOREST PANEL
-    ========================================================= */
+      img.src = fire ? "assets/forest-fire.jpg" : "assets/forest-safe.jpg";
+      img.alt = fire
+        ? "Ilustrasi Hutan 1 dengan api terdeteksi"
+        : "Ilustrasi Hutan 1 dalam kondisi aman";
 
-    function setForestPanel(
-      id,
-      fire
-    ) {
-
-      const panel =
-        $(id);
-
-
-      const img =
-        panel.querySelector(
-          ".forest-img"
-        );
-
-
-      img.src =
-
-        fire
-          ? "assets/forest-fire.jpg"
-          : "assets/forest-safe.jpg";
-
-
-      img.alt =
-
-        fire
-
-          ? "Ilustrasi Hutan 1 dengan api terdeteksi dan robot berhenti"
-
-          : "Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli";
-
-
-      panel
-        .querySelector(
-          ".fire-overlay"
-        )
-        ?.remove();
-
-
-      panel
-        .querySelector(
-          ".badge-fire"
-        )
-        ?.remove();
-
-
-      panel
-        .querySelector(
-          ".robot"
-        )
-        ?.remove();
-
+      panel.querySelector(".fire-overlay")?.remove();
+      panel.querySelector(".badge-fire")?.remove();
+      panel.querySelector(".robot")?.remove();
 
       if (fire) {
+        const overlay = document.createElement("div");
+        overlay.className = "fire-overlay";
+        panel.appendChild(overlay);
 
-        const overlay =
-          document.createElement(
-            "div"
-          );
-
-
-        overlay.className =
-          "fire-overlay";
-
-
-        panel.appendChild(
-          overlay
-        );
-
-
-        const badge =
-          document.createElement(
-            "span"
-          );
-
-
-        badge.className =
-          "badge-fire fw-pulse-fire";
-
-
-        badge.textContent =
-          "🔥 Api terdeteksi";
-
-
-        panel.appendChild(
-          badge
-        );
-
+        const badge = document.createElement("span");
+        badge.className = "badge-fire fw-pulse-fire";
+        badge.textContent = "Api terdeteksi";
+        panel.appendChild(badge);
       }
 
-
-      const robot =
-        document.createElement(
-          "img"
-        );
-
-
-      robot.className =
-        "robot";
-
-
-      robot.src =
-        "assets/robot.png";
-
-
-      robot.alt =
-        "Robot patroli Fire Watcher";
-
-
-      panel.appendChild(
-        robot
-      );
-
-
-      robots[id] =
-        robot;
-
-
+      const robot = document.createElement("img");
+      robot.className = "robot";
+      robot.src = "assets/robot.png";
+      robot.alt = "Robot patroli Fire Watcher";
+      panel.appendChild(robot);
+      robots[id] = robot;
       placeRobot(robot);
-
     }
 
-
-    /* =========================================================
-       ROBOT PATROL ANIMATION
-       
-       NORMAL:
-       robot bergerak.
-
-       FIRE:
-       robot berhenti di posisi terakhir.
-    ========================================================= */
-
+    // ============= ANIMASI ROBOT =============
     const robots = {};
-
-    let angle =
-      Math.PI / 2;
-
-
+    let angle = Math.PI / 2;
     function placeRobot(el) {
-
-      const x =
-        50 +
-        38.5 *
-        Math.cos(angle);
-
-
-      const y =
-        50 +
-        43 *
-        Math.sin(angle);
-
-
-      el.style.left =
-        x + "%";
-
-
-      el.style.top =
-        y + "%";
-
+      const x = 50 + 38.5 * Math.cos(angle);
+      const y = 50 + 43 * Math.sin(angle);
+      el.style.left = x + "%";
+      el.style.top = y + "%";
     }
 
-
-    let raf = 0;
-
-    let last =
-      performance.now();
-
-
+    let lastFrame = performance.now();
     function tick(t) {
-
       if (!alarmState.active) {
-
-        angle +=
-          ((t - last) / 1000) *
-          0.35;
-
-
-        Object
-          .values(robots)
-          .forEach(placeRobot);
-
+        angle += ((t - lastFrame) / 1000) * 0.35;
+        Object.values(robots).forEach(placeRobot);
       }
-
-
-      last = t;
-
-
-      raf =
-        requestAnimationFrame(
-          tick
-        );
-
+      lastFrame = t;
+      requestAnimationFrame(tick);
     }
 
-
-    /* =========================================================
-       PAGE NAVIGATION
-    ========================================================= */
-
-    function showPage(
-      name,
-      event
-    ) {
-
-      if (event) {
-        event.preventDefault();
-      }
-
-
-      document
-        .querySelectorAll(".page")
-        .forEach(
-          (p) =>
-            p.classList.remove(
-              "visible"
-            )
-        );
-
-
-      $(
-        "page-" + name
-      ).classList.add(
-        "visible"
-      );
-
-
-      $("tab-damkar")
-        .classList.toggle(
-          "active",
-          name === "damkar"
-        );
-
-
-      $("tab-penduduk")
-        .classList.toggle(
-          "active",
-          name === "penduduk"
-        );
-
-
-      window.scrollTo(
-        0,
-        0
-      );
-
+    // ============= NAVIGASI HALAMAN =============
+    function showPage(name, event) {
+      if (event) event.preventDefault();
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
+      $("page-" + name).classList.add("visible");
+      $("tab-damkar").classList.toggle("active", name === "damkar");
+      $("tab-penduduk").classList.toggle("active", name === "penduduk");
+      window.scrollTo(0, 0);
     }
 
-
-    /* =========================================================
-       CLOCK
-    ========================================================= */
-
+    // ============= JAM & TANGGAL =============
     function formatClock(d) {
-
-      return d.toLocaleTimeString(
-        "id-ID",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false
-        }
-      );
-
+      return d.toLocaleTimeString("id-ID", {
+        hour: "2-digit", minute: "2-digit", hour12: false
+      });
     }
-
 
     function formatDateLong(d) {
-
-      return d.toLocaleDateString(
-        "id-ID",
-        {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric"
-        }
-      );
-
+      return d.toLocaleDateString("id-ID", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric"
+      });
     }
-
 
     function startClock() {
-
-      const update =
-        () => {
-
-          const now =
-            new Date();
-
-
-          $("jam").textContent =
-            formatClock(now);
-
-
-          $("damkar-date").textContent =
-
-            formatDateLong(now) +
-            " · " +
-            formatClock(now);
-
-        };
-
-
+      const update = () => {
+        const now = new Date();
+        $("jam").textContent = formatClock(now);
+        $("damkar-date").textContent = formatDateLong(now) + " · " + formatClock(now);
+      };
       update();
-
-
-      setInterval(
-        update,
-        1000
-      );
-
+      setInterval(update, 1000);
     }
 
-
-    /* =========================================================
-       INIT
-    ========================================================= */
-
-    alarmState =
-      readAlarm();
-
-
+    // ============= INIT =============
+    alarmState = readAlarm();
     render();
-
-
-    window.addEventListener(
-      EVENT,
-      render
-    );
-
-
-    window.addEventListener(
-      "storage",
-      () => {
-
-        alarmState =
-          readAlarm();
-
-        render();
-
-      }
-    );
-
+    window.addEventListener(EVENT, render);
+    window.addEventListener("storage", () => {
+      alarmState = readAlarm();
+      render();
+    });
 
     startClock();
-
-
-    raf =
-      requestAnimationFrame(
-        tick
-      );
-
-
+    requestAnimationFrame(tick);
     startFirebaseSync();
-
   </script>
-
 </body>
 </html>
