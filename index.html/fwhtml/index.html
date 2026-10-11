@@ -230,17 +230,7 @@
     .text-forest { color: var(--forest); }
 
     /* ===== Demo button ===== */
-    .demo-wrap {
-      position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
-      z-index: 50; display: flex; gap: 0.5rem; align-items: center;
-      width: max-content; max-width: calc(100vw - 1.5rem);
-    }
-    .sound-btn {
-      cursor: pointer; border: 1px solid var(--forest-line); border-radius: 9999px;
-      padding: 0.75rem 1rem; font-family: var(--font-display); font-size: 0.875rem;
-      font-weight: 700; color: var(--foreground); background: white;
-      box-shadow: var(--shadow-card); white-space: nowrap;
-    }
+    .demo-wrap { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 50; }
     .demo-btn {
       cursor: pointer;
       border: 0;
@@ -330,7 +320,6 @@
           <span id="damkar-fire-label" class="status-label">Aktif</span>
         </div>
         <p id="damkar-monitor-text" class="mt-3 text-sm muted">Fire Watcher sedang memantau area Hutan 1.</p>
-        <p id="firebase-connection" class="mt-3 text-sm muted">Koneksi Firebase: menghubungkan...</p>
         <p class="mt-4" style="font-weight:700;font-size:0.875rem"><span id="damkar-date"></span></p>
       </section>
     </main>
@@ -372,7 +361,6 @@
 
   <!-- ============ Demo controls ============ -->
   <div class="demo-wrap">
-    <button id="sound-btn" type="button" class="sound-btn" onclick="toggleSound()">🔔 Aktifkan suara alarm</button>
     <button id="demo-btn" type="button" class="demo-btn fire-off" onclick="toggleDemo()">🔥 Simulasi alarm robot</button>
   </div>
 
@@ -380,210 +368,119 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script>
-    // ============= STATUS & ALARM =============
+    // ============= Alarm store (localStorage + custom event, seperti di website) =============
     const STORAGE_KEY = "firewatcher-alarm";
     const EVENT = "firewatcher-alarm-change";
     const SAFE = { active: false, at: null, confidence: null };
 
     let alarmState = SAFE;
-    let localDemo = null;
-    let firebaseConnected = false;
-    let soundEnabled = false;
-    let audioContext = null;
-    let alarmTimer = null;
-    let previousFireState = null;
+    let localDemo = null; // null = ikut Firebase; true/false = hasil tombol demo
 
     function readAlarm() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = window.localStorage.getItem(STORAGE_KEY);
         if (!raw) return SAFE;
         const parsed = JSON.parse(raw);
-        return typeof parsed.active === "boolean" ? parsed : SAFE;
+        if (typeof parsed.active !== "boolean") return SAFE;
+        return parsed;
       } catch (e) {
         return SAFE;
       }
     }
 
-    function writeAlarm(next, source = "firebase") {
-      const wasActive = alarmState.active;
+    function writeAlarm(next) {
       alarmState = next;
-
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch (e) {}
-
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (e) { /* ignore */ }
       window.dispatchEvent(new CustomEvent(EVENT));
-
-      // Bunyi hanya saat status berubah dari aman menjadi terdeteksi.
-      if (!wasActive && next.active) startAlarmSound();
-      if (!next.active) stopAlarmSound();
-
-      render();
     }
 
     function receiveAlarm() {
-      localDemo = true;
-      writeAlarm({ active: true, at: new Date().toISOString(), confidence: null }, "demo");
+      writeAlarm({
+        active: true,
+        at: new Date().toISOString(),
+        confidence: 90 + Math.floor(Math.random() * 9),
+      });
     }
 
     function clearAlarm() {
-      localDemo = false;
-      writeAlarm(SAFE, "demo");
+      writeAlarm(SAFE);
     }
 
     function toggleDemo() {
-      if (alarmState.active) clearAlarm();
-      else receiveAlarm();
-    }
-
-    // ============= SUARA ALARM =============
-    // Browser memerlukan klik pengguna sebelum suara boleh dimainkan.
-    function ensureAudio() {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) {
-        alert("Browser ini tidak mendukung suara alarm. Coba gunakan Chrome atau Edge.");
-        return false;
-      }
-      if (!audioContext) audioContext = new AudioCtx();
-      if (audioContext.state === "suspended") audioContext.resume();
-      return true;
-    }
-
-    function playBeep(frequency, duration = 0.18) {
-      if (!soundEnabled || !audioContext || audioContext.state !== "running") return;
-
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-
-      oscillator.type = "sawtooth";
-      oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.02);
-      gain.gain.setValueAtTime(0.12, audioContext.currentTime + duration - 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
-
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + duration);
-    }
-
-    function alarmPattern() {
-      if (!soundEnabled || !alarmState.active) return;
-      playBeep(880, 0.18);
-      setTimeout(() => playBeep(660, 0.18), 230);
-      setTimeout(() => playBeep(880, 0.18), 460);
-    }
-
-    function startAlarmSound() {
-      if (!soundEnabled || !alarmState.active) return;
-      stopAlarmSound();
-      alarmPattern();
-      alarmTimer = setInterval(alarmPattern, 1500);
-    }
-
-    function stopAlarmSound() {
-      if (alarmTimer !== null) {
-        clearInterval(alarmTimer);
-        alarmTimer = null;
-      }
-    }
-
-    function toggleSound() {
-      if (!soundEnabled) {
-        if (!ensureAudio()) return;
-        soundEnabled = true;
-        $("sound-btn").textContent = "🔕 Matikan suara alarm";
-        $("sound-btn").setAttribute("aria-pressed", "true");
-        if (alarmState.active) startAlarmSound();
-        else playBeep(660, 0.12);
+      if (alarmState.active) {
+        localDemo = false;
+        clearAlarm();
       } else {
-        soundEnabled = false;
-        stopAlarmSound();
-        $("sound-btn").textContent = "🔔 Aktifkan suara alarm";
-        $("sound-btn").setAttribute("aria-pressed", "false");
+        localDemo = true;
+        receiveAlarm();
       }
     }
 
-    // ============= FIREBASE REALTIME DATABASE =============
+    // ============= Firebase Realtime Database (hanya membaca) =============
     const firebaseConfig = {
       apiKey: "AIzaSyDHsj3vRzH112xlvWLKRGnbd_GtpzSZSSg",
       authDomain: "firewatcher-a3.firebaseapp.com",
-      databaseURL: "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL:
+        "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "firewatcher-a3",
       storageBucket: "firewatcher-a3.firebasestorage.app",
       messagingSenderId: "66978697760",
-      appId: "1:66978697760:web:c2b9d4f09cf67086bb6245"
+      appId: "1:66978697760:web:c2b9d4f09cf67086bb6245",
     };
 
     function startFirebaseSync() {
       if (!window.firebase) {
-        setFirebaseStatus(false, "SDK Firebase gagal dimuat");
         console.error("[Firebase] SDK gagal dimuat");
         return;
       }
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
 
-      try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+      // Path yang diminta + varian ejaan yang ada di database ("fireWatcher").
+      const paths = [
+        "/FireWatcher/Hutan1/fireDetected",
+        "/fireWatcher/Hutan1/fireDetected",
+      ];
+      const values = {};
+      const emit = () => {
+        const known = Object.values(values).filter((v) => v !== null);
+        if (known.length === 0) return;
+        applyFirebase(known.some(Boolean));
+      };
 
-        // Path ini harus sama persis dengan URL yang ditulis ESP32:
-        // /fireWatcher/Hutan1/fireDetected
-        db.ref(".info/connected").on("value", snapshot => {
-          firebaseConnected = snapshot.val() === true;
-          setFirebaseStatus(firebaseConnected, firebaseConnected
-            ? "Realtime aktif"
-            : "Menghubungkan kembali...");
-        });
-
-        db.ref("/fireWatcher/Hutan1/fireDetected").on(
+      paths.forEach((path) => {
+        db.ref(path).on(
           "value",
-          snapshot => {
+          (snapshot) => {
             const raw = snapshot.val();
-            console.log("[Firebase] fireDetected =", raw);
-
-            if (raw === null || raw === undefined) {
-              setFirebaseStatus(firebaseConnected, "Data fireDetected belum ada");
-              return;
-            }
-
-            const fire = raw === true || raw === "true" || raw === 1;
-            // Tombol demo hanya untuk simulasi lokal. Data perangkat nyata
-            // kembali menjadi sumber utama saat ada pembaruan Firebase.
-            localDemo = null;
-            const next = fire
-              ? { active: true, at: new Date().toISOString(), confidence: null }
-              : SAFE;
-
-            if (alarmState.active !== fire) {
-              writeAlarm(next, "firebase");
-            } else {
-              alarmState = next;
-              render();
-            }
+            console.log("[Firebase] " + path + " =", raw);
+            values[path] =
+              raw === null || raw === undefined
+                ? null
+                : raw === true || raw === "true" || raw === 1;
+            emit();
           },
-          error => {
-            console.error("[Firebase] Gagal membaca data:", error);
-            setFirebaseStatus(false, "Gagal membaca Firebase");
+          (error) => {
+            console.error("[Firebase] gagal membaca " + path + ":", error);
           }
         );
+      });
+      console.log("[Firebase] listener aktif");
+    }
 
-        console.log("[Firebase] Listener realtime aktif.");
-      } catch (error) {
-        console.error("[Firebase] Inisialisasi gagal:", error);
-        setFirebaseStatus(false, "Inisialisasi gagal");
+    function applyFirebase(fireDetected) {
+      if (fireDetected) {
+        writeAlarm({ active: true, at: new Date().toISOString(), confidence: null });
+      } else {
+        writeAlarm(SAFE);
       }
+      localDemo = null;
     }
 
-    function setFirebaseStatus(connected, message) {
-      const el = $("firebase-connection");
-      if (!el) return;
-      el.textContent = "Koneksi Firebase: " + message;
-      el.style.color = connected ? "var(--forest)" : "var(--destructive)";
-    }
-
-    // ============= RENDER STATUS =============
-    const $ = id => document.getElementById(id);
+    // ============= Render =============
+    const $ = (id) => document.getElementById(id);
 
     function render() {
       const fire = alarmState.active;
@@ -591,83 +488,81 @@
       // --- Kantor Damkar ---
       $("damkar-hero").className = "hero " + (fire ? "fw-card-fire" : "fw-card-safe");
       const damkarTitle = $("damkar-title");
-      damkarTitle.textContent = fire ? "KEBAKARAN TERDETEKSI" : "TIDAK ADA KEBAKARAN";
+      damkarTitle.textContent = fire ? "🔥 KEBAKARAN TERDETEKSI" : "TIDAK ADA KEBAKARAN";
       damkarTitle.className = fire ? "text-danger" : "text-forest";
       $("damkar-text").innerHTML = fire
-        ? "Kebakaran terdeteksi di Hutan 1.<br />Segera lakukan penanganan sesuai prosedur."
-        : "Area hutan dalam kondisi aman.<br />Tetap waspada dan jaga lingkungan sekitar Anda.";
+        ? "Kebakaran terdeteksi di Hutan 1.<br />Segera menuju Hutan 1 untuk melakukan penanganan."
+        : "Area hutan dalam kondisi aman.<br />Tetap waspada dan jaga lingkungan sekitar anda.";
 
       setForestPanel("damkar-forest", fire);
       $("damkar-status-api").textContent = fire ? ": Terdeteksi" : ": Tidak terdeteksi";
       $("damkar-status-api").style.color = fire ? "var(--destructive)" : "var(--foreground)";
-      $("damkar-ai").textContent = fire ? ": Api terdeteksi oleh sistem" : ": Tidak ada api";
+      $("damkar-ai").textContent = fire ? ": 🔥 Api terdeteksi" : ": Tidak ada api";
       $("damkar-ai").style.color = fire ? "var(--destructive)" : "var(--foreground)";
 
       $("damkar-area-chip").className = "chip" + (fire ? " fire" : "");
       $("damkar-area-text").textContent = fire ? "Kebakaran terdeteksi" : "Area aman";
       const damkarCamera = $("damkar-camera");
-      damkarCamera.textContent = fire ? "Api terdeteksi dari data Fire Watcher" : "Tidak ada api";
+      damkarCamera.textContent = fire ? "🔥 Api terdeteksi" : "Tidak ada api";
       damkarCamera.className = "mt-3 " + (fire ? "text-danger" : "text-forest");
 
-      $("damkar-monitor").className = "fw-card card-pad" + (fire ? " fw-card-fire" : "");
+      $("damkar-monitor").className =
+        "fw-card card-pad" + (fire ? " fw-card-fire" : "");
+      $("damkar-monitor").classList.add("card-pad");
       $("damkar-dot").className = "dot" + (fire ? " fire fw-pulse-fire" : "");
       const damkarLabel = $("damkar-fire-label");
       damkarLabel.textContent = fire ? "FIRE ALERT" : "Aktif";
-      damkarLabel.className = "status-label " + (fire ? "text-danger" : "text-forest");
+      damkarLabel.className = "status-label " + (fire ? "text-danger" : "");
       $("damkar-monitor-text").textContent = fire
-        ? "Peringatan kebakaran aktif di Hutan 1."
+        ? "Kebakaran terdeteksi di Hutan 1."
         : "Fire Watcher sedang memantau area Hutan 1.";
 
       // --- Penduduk ---
       $("penduduk-hero").className = "hero " + (fire ? "fw-card-fire" : "fw-card-safe");
       const pendudukTitle = $("penduduk-title");
-      pendudukTitle.textContent = fire ? "PERINGATAN KEBAKARAN" : "AREA AMAN";
+      pendudukTitle.textContent = fire ? "🔥 PERINGATAN KEBAKARAN" : "AREA AMAN";
       pendudukTitle.className = fire ? "text-danger" : "text-forest";
       $("penduduk-text").innerHTML = fire
         ? "Kebakaran terdeteksi di Hutan 1.<br />Harap tetap waspada dan hindari area tersebut."
         : "Tidak ada kebakaran yang terdeteksi di Hutan 1.<br />Area sedang dipantau oleh Fire Watcher.";
 
       setForestPanel("penduduk-forest", fire);
-      $("penduduk-status").className = "fw-card card-pad text-center" + (fire ? " fw-card-fire" : "");
+
+      $("penduduk-status").className =
+        "fw-card card-pad text-center" + (fire ? " fw-card-fire" : "");
       $("penduduk-dot").className = "dot" + (fire ? " fire fw-pulse-fire" : "");
       const pendudukLabel = $("penduduk-fire-label");
       pendudukLabel.textContent = fire ? "FIRE ALERT" : "Aktif";
-      pendudukLabel.className = "status-label " + (fire ? "text-danger" : "text-forest");
+      pendudukLabel.className = "status-label " + (fire ? "text-danger" : "");
       $("penduduk-status-text").textContent = fire
         ? "Ikuti arahan petugas dan jauhi Hutan 1."
         : "Fire Watcher sedang memantau area Hutan 1.";
 
+      // --- Tombol demo ---
       const btn = $("demo-btn");
       btn.className = "demo-btn " + (fire ? "fire-on" : "fire-off");
-      btn.textContent = fire ? "Hapus alarm simulasi" : "Simulasi alarm robot";
+      btn.textContent = fire ? "Hapus alarm (kembali aman)" : "🔥 Simulasi alarm robot";
     }
 
     function setForestPanel(id, fire) {
       const panel = $(id);
-      if (!panel) return;
       const img = panel.querySelector(".forest-img");
-      if (!img) return;
-
       img.src = fire ? "assets/forest-fire.jpg" : "assets/forest-safe.jpg";
       img.alt = fire
-        ? "Ilustrasi Hutan 1 dengan api terdeteksi"
-        : "Ilustrasi Hutan 1 dalam kondisi aman";
-
+        ? "Ilustrasi Hutan 1 dengan api terdeteksi dan robot tetap berpatroli"
+        : "Ilustrasi Hutan 1 dalam kondisi aman dengan robot berpatroli";
       panel.querySelector(".fire-overlay")?.remove();
       panel.querySelector(".badge-fire")?.remove();
       panel.querySelector(".robot")?.remove();
-
       if (fire) {
         const overlay = document.createElement("div");
         overlay.className = "fire-overlay";
         panel.appendChild(overlay);
-
         const badge = document.createElement("span");
         badge.className = "badge-fire fw-pulse-fire";
-        badge.textContent = "Api terdeteksi";
+        badge.textContent = "🔥 Api terdeteksi";
         panel.appendChild(badge);
       }
-
       const robot = document.createElement("img");
       robot.className = "robot";
       robot.src = "assets/robot.png";
@@ -677,9 +572,10 @@
       placeRobot(robot);
     }
 
-    // ============= ANIMASI ROBOT =============
+    // ============= Robot patroli (berhenti saat api terdeteksi) =============
     const robots = {};
     let angle = Math.PI / 2;
+
     function placeRobot(el) {
       const x = 50 + 38.5 * Math.cos(angle);
       const y = 50 + 43 * Math.sin(angle);
@@ -687,39 +583,39 @@
       el.style.top = y + "%";
     }
 
-    let lastFrame = performance.now();
+    let raf = 0;
+    let last = performance.now();
     function tick(t) {
       if (!alarmState.active) {
-        angle += ((t - lastFrame) / 1000) * 0.35;
+        angle += ((t - last) / 1000) * 0.35;
         Object.values(robots).forEach(placeRobot);
       }
-      lastFrame = t;
-      requestAnimationFrame(tick);
+      last = t;
+      raf = requestAnimationFrame(tick);
     }
 
-    // ============= NAVIGASI HALAMAN =============
+    // ============= Halaman =============
     function showPage(name, event) {
       if (event) event.preventDefault();
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
+      document.querySelectorAll(".page").forEach((p) => p.classList.remove("visible"));
       $("page-" + name).classList.add("visible");
       $("tab-damkar").classList.toggle("active", name === "damkar");
       $("tab-penduduk").classList.toggle("active", name === "penduduk");
       window.scrollTo(0, 0);
     }
 
-    // ============= JAM & TANGGAL =============
+    // ============= Jam & tanggal =============
     function formatClock(d) {
-      return d.toLocaleTimeString("id-ID", {
-        hour: "2-digit", minute: "2-digit", hour12: false
-      });
+      return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false });
     }
-
     function formatDateLong(d) {
       return d.toLocaleDateString("id-ID", {
-        weekday: "long", day: "numeric", month: "long", year: "numeric"
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
       });
     }
-
     function startClock() {
       const update = () => {
         const now = new Date();
@@ -730,7 +626,7 @@
       setInterval(update, 1000);
     }
 
-    // ============= INIT =============
+    // ============= Init =============
     alarmState = readAlarm();
     render();
     window.addEventListener(EVENT, render);
@@ -738,9 +634,8 @@
       alarmState = readAlarm();
       render();
     });
-
     startClock();
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
     startFirebaseSync();
   </script>
 </body>
