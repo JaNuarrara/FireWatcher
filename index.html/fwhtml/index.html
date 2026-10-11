@@ -347,90 +347,77 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script>
-    // ============= Alarm store (localStorage + custom event, seperti di website) =============
-    const STORAGE_KEY = "firewatcher-alarm";
-    const EVENT = "firewatcher-alarm-change";
+    // ============= Firebase Realtime Database (realtime, read-only) =============
+    // ESP32 menulis boolean ke satu path ini:
+    // /FireWatcher/Hutan1/fireDetected
     const SAFE = { active: false, at: null, confidence: null };
-
     let alarmState = SAFE;
+    let firebaseStarted = false;
 
-    function readAlarm() {
-      try {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (!raw) return SAFE;
-        const parsed = JSON.parse(raw);
-        if (typeof parsed.active !== "boolean") return SAFE;
-        return parsed;
-      } catch (e) {
-        return SAFE;
-      }
-    }
-
-    function writeAlarm(next) {
-      alarmState = next;
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch (e) { /* ignore */ }
-      window.dispatchEvent(new CustomEvent(EVENT));
-    }
-
-    // ============= Firebase Realtime Database (hanya membaca) =============
     const firebaseConfig = {
       apiKey: "AIzaSyDHsj3vRzH112xlvWLKRGnbd_GtpzSZSSg",
       authDomain: "firewatcher-a3.firebaseapp.com",
-      databaseURL:
-        "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: "https://firewatcher-a3-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "firewatcher-a3",
       storageBucket: "firewatcher-a3.firebasestorage.app",
       messagingSenderId: "66978697760",
-      appId: "1:66978697760:web:c2b9d4f09cf67086bb6245",
+      appId: "1:66978697760:web:c2b9d4f09cf67086bb6245"
     };
 
-    function startFirebaseSync() {
-      if (!window.firebase) {
-        console.error("[Firebase] SDK gagal dimuat");
+    function applyFirebase(raw) {
+      // Terima hanya nilai boolean / format sederhana yang dikirim ESP32.
+      let fireDetected;
+      if (raw === true || raw === 1 || raw === "true") {
+        fireDetected = true;
+      } else if (raw === false || raw === 0 || raw === "false") {
+        fireDetected = false;
+      } else {
+        console.warn("[Firebase] Nilai fireDetected tidak valid:", raw);
         return;
       }
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.database();
 
-      // Path yang diminta + varian ejaan yang ada di database ("fireWatcher").
-      const paths = [
-        "/FireWatcher/Hutan1/fireDetected",
-        "/fireWatcher/Hutan1/fireDetected",
-      ];
-      const values = {};
-      const emit = () => {
-        const known = Object.values(values).filter((v) => v !== null);
-        if (known.length === 0) return;
-        applyFirebase(known.some(Boolean));
+      // Hindari render ulang jika status tidak berubah.
+      if (alarmState.active === fireDetected) return;
+
+      alarmState = {
+        active: fireDetected,
+        at: fireDetected ? new Date().toISOString() : null,
+        confidence: null
       };
-
-      paths.forEach((path) => {
-        db.ref(path).on(
-          "value",
-          (snapshot) => {
-            const raw = snapshot.val();
-            console.log("[Firebase] " + path + " =", raw);
-            values[path] =
-              raw === null || raw === undefined
-                ? null
-                : raw === true || raw === "true" || raw === 1;
-            emit();
-          },
-          (error) => {
-            console.error("[Firebase] gagal membaca " + path + ":", error);
-          }
-        );
-      });
-      console.log("[Firebase] listener aktif");
+      console.log("[Fire Watcher] Status berubah:", fireDetected ? "FIRE DETECTED" : "SAFE");
+      render();
     }
 
-    function applyFirebase(fireDetected) {
-      if (fireDetected) {
-        writeAlarm({ active: true, at: new Date().toISOString(), confidence: null });
-      } else {
-        writeAlarm(SAFE);
+    function startFirebaseSync() {
+      if (firebaseStarted) return;
+      if (!window.firebase) {
+        console.error("[Firebase] SDK gagal dimuat. Periksa koneksi internet.");
+        return;
+      }
+      firebaseStarted = true;
+
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const fireRef = db.ref("/FireWatcher/Hutan1/fireDetected");
+
+        // Listener realtime: Firebase mengirim nilai awal dan setiap perubahan.
+        fireRef.on("value", (snapshot) => {
+          const raw = snapshot.val();
+          console.log("[Firebase] /FireWatcher/Hutan1/fireDetected =", raw);
+          if (raw === null || raw === undefined) {
+            console.warn("[Firebase] Path belum ada atau nilainya null.");
+            return;
+          }
+          applyFirebase(raw);
+        }, (error) => {
+          console.error("[Firebase] Gagal membaca status:", error);
+        });
+
+        console.log("[Firebase] Listener realtime aktif.");
+      } catch (error) {
+        console.error("[Firebase] Gagal memulai listener:", error);
+        firebaseStarted = false;
       }
     }
 
@@ -577,13 +564,7 @@
     }
 
     // ============= Init =============
-    alarmState = readAlarm();
     render();
-    window.addEventListener(EVENT, render);
-    window.addEventListener("storage", () => {
-      alarmState = readAlarm();
-      render();
-    });
     startClock();
     raf = requestAnimationFrame(tick);
     startFirebaseSync();
