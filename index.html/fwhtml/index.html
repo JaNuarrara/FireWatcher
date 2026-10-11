@@ -229,22 +229,6 @@
 
     .text-forest { color: var(--forest); }
 
-    /* ===== Demo button ===== */
-    .demo-wrap { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 50; }
-    .demo-btn {
-      cursor: pointer;
-      border: 0;
-      border-radius: 9999px;
-      padding: 0.75rem 1.5rem;
-      font-family: var(--font-display);
-      font-size: 0.875rem;
-      font-weight: 700;
-      box-shadow: var(--shadow-card);
-      transition: transform 0.15s ease;
-    }
-    .demo-btn:hover { transform: scale(1.05); }
-    .demo-btn.fire-on { background-color: var(--forest); color: var(--primary-foreground); }
-    .demo-btn.fire-off { background-color: var(--destructive); color: var(--destructive-foreground); }
   </style>
 </head>
 <body>
@@ -359,11 +343,6 @@
     </main>
   </div>
 
-  <!-- ============ Demo controls ============ -->
-  <div class="demo-wrap">
-    <button id="demo-btn" type="button" class="demo-btn fire-off" onclick="toggleDemo()">🔥 Simulasi alarm robot</button>
-  </div>
-
   <!-- ============ Firebase (compat SDK, read-only) ============ -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
@@ -374,7 +353,6 @@
     const SAFE = { active: false, at: null, confidence: null };
 
     let alarmState = SAFE;
-    let localDemo = null; // null = ikut Firebase; true/false = hasil tombol demo
 
     function readAlarm() {
       try {
@@ -394,28 +372,6 @@
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch (e) { /* ignore */ }
       window.dispatchEvent(new CustomEvent(EVENT));
-    }
-
-    function receiveAlarm() {
-      writeAlarm({
-        active: true,
-        at: new Date().toISOString(),
-        confidence: 90 + Math.floor(Math.random() * 9),
-      });
-    }
-
-    function clearAlarm() {
-      writeAlarm(SAFE);
-    }
-
-    function toggleDemo() {
-      if (alarmState.active) {
-        localDemo = false;
-        clearAlarm();
-      } else {
-        localDemo = true;
-        receiveAlarm();
-      }
     }
 
     // ============= Firebase Realtime Database (hanya membaca) =============
@@ -476,7 +432,6 @@
       } else {
         writeAlarm(SAFE);
       }
-      localDemo = null;
     }
 
     // ============= Render =============
@@ -537,11 +492,6 @@
       $("penduduk-status-text").textContent = fire
         ? "Ikuti arahan petugas dan jauhi Hutan 1."
         : "Fire Watcher sedang memantau area Hutan 1.";
-
-      // --- Tombol demo ---
-      const btn = $("demo-btn");
-      btn.className = "demo-btn " + (fire ? "fire-on" : "fire-off");
-      btn.textContent = fire ? "Hapus alarm (kembali aman)" : "🔥 Simulasi alarm robot";
     }
 
     function setForestPanel(id, fire) {
